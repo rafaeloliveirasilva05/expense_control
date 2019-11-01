@@ -1,8 +1,9 @@
 import React from 'react'
-import { View } from 'react-native'
+
+import Teste from './pages/Record_Spent'
 
 export default function App() {
   return(
-    <View/>
+    <Teste/>
   )
 }
