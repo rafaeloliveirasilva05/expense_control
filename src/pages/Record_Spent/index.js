@@ -1,7 +1,10 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { View } from 'react-native'
+import moment from 'moment-timezone'
 
 import { Container, Input, Label, SubmitButton } from './styles'
+
+moment.locale('pt-br')
 
 export default function Record_Spent() {
   const [expenseType, setExpenseType] = useState('Rolê')
@@ -13,6 +16,15 @@ export default function Record_Spent() {
   const valueSpentField = useRef(null)
   const datePurchaseField = useRef(null)
   const handleSubmitButton = useRef(null)
+
+  useEffect (() => {
+    setDatePurchase(getCurrentDate())
+  })
+
+  const getCurrentDate = () => {
+    const dataUtc = moment.utc()
+    return moment.tz(dataUtc, moment.tz.guess()).format('DD/MM/YYYY HH:mm:ss')
+  }
 
 
   const handleSubmit = () => {
