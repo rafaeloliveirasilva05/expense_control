@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { View } from 'react-native'
 import moment from 'moment-timezone'
-import RNFetchBlob from 'rn-fetch-blob';
+import RNFetchBlob from 'rn-fetch-blob'
 
 import { Container, Input, Label, SubmitButton } from './styles'
+import getRealm from '../../services/realm'
 
 moment.locale('pt-br')
 
@@ -25,8 +26,20 @@ export default function Record_Spent() {
 
   useEffect(() => {
     setDatePurchase(getCurrentDate())
+    loadSpendingData()
     // buildCSV()
-  })
+  }, [])
+
+  const loadSpendingData = async () => {
+    try {
+      const realm = await getRealm()
+      const data = realm.objects('SpendingData')
+      console.tron.log('data', data)
+
+    } catch (error) {
+      console.tron.log('error', error)
+    }
+  }
 
   const buildCSV = () => {
     // construct csvString
@@ -36,7 +49,7 @@ export default function Record_Spent() {
 
     // write the current list of answers to a local csv file
     const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/data.csv`
-    
+
     // pathToWrite /storage/emulated/0/Download/data.csv
     RNFetchBlob.fs
       .writeFile(pathToWrite, csvString, 'utf8')
@@ -52,11 +65,26 @@ export default function Record_Spent() {
   }
 
 
-  const handleSubmit = () => {
-    console.tron.log(expenseType)
-    console.tron.log(desription)
-    console.tron.log(valueSpent)
-    console.tron.log(datePurchase)
+  const handleSubmit = async () => {
+
+    const data = {
+      id: Math.floor(Math.random() * 256),
+      expenseType,
+      desription,
+      valueSpent,
+      datePurchase
+    }
+
+    try {
+      const realm = await getRealm()
+
+      realm.write(() => {
+        realm.create('SpendingData', data)
+      })
+    } catch (error) {
+      console.tron.log('error', error)
+    }
+
   }
 
   return (
