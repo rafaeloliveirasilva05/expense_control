@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { View } from 'react-native'
 import moment from 'moment-timezone'
+import RNFetchBlob from 'rn-fetch-blob';
 
 import { Container, Input, Label, SubmitButton } from './styles'
 
@@ -17,9 +18,33 @@ export default function Record_Spent() {
   const datePurchaseField = useRef(null)
   const handleSubmitButton = useRef(null)
 
-  useEffect (() => {
+  const values = [
+    ['build', '2017-11-05T05:40:35.515Z'],
+    ['deploy', '2017-11-05T05:42:04.810Z']
+  ]
+
+  useEffect(() => {
     setDatePurchase(getCurrentDate())
+    // buildCSV()
   })
+
+  const buildCSV = () => {
+    // construct csvString
+    const headerString = 'event,timestamp\n';
+    const rowString = values.map(d => `${d[0]},${d[1]}\n`).join('')
+    const csvString = `${headerString}${rowString}`
+
+    // write the current list of answers to a local csv file
+    const pathToWrite = `${RNFetchBlob.fs.dirs.DownloadDir}/data.csv`
+    
+    // pathToWrite /storage/emulated/0/Download/data.csv
+    RNFetchBlob.fs
+      .writeFile(pathToWrite, csvString, 'utf8')
+      .then(() => {
+        // console.tron.log(`wrote file ${pathToWrite}`);
+        // wrote file /storage/emulated/0/Download/data.csv
+      })
+  }
 
   const getCurrentDate = () => {
     const dataUtc = moment.utc()
@@ -52,8 +77,8 @@ export default function Record_Spent() {
           ref={spendTypeField}
           placeholder={'Ex: Lanche'}
           onChangeText={text => setDescription(text)}
-          value={desription} 
-          onSubmitEditing={() => valueSpentField.current.focus()}/>
+          value={desription}
+          onSubmitEditing={() => valueSpentField.current.focus()} />
       </View>
 
       <View style={{ marginTop: 20 }}>
@@ -62,8 +87,8 @@ export default function Record_Spent() {
           ref={valueSpentField}
           placeholder={'Ex: 30.00'}
           onChangeText={text => setValueSpent(text)}
-          value={valueSpent} 
-          onSubmitEditing={() => datePurchaseField.current.focus()}/>
+          value={valueSpent}
+          onSubmitEditing={() => datePurchaseField.current.focus()} />
       </View>
 
       <View style={{ marginTop: 20 }}>
@@ -73,7 +98,7 @@ export default function Record_Spent() {
           placeholder={'Ex: 25/10/20'}
           onChangeText={text => setDatePurchase(text)}
           value={datePurchase}
-          onSubmitEditing={handleSubmit}/>
+          onSubmitEditing={handleSubmit} />
       </View>
 
       <SubmitButton
